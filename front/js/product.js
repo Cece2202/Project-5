@@ -65,7 +65,7 @@ document.getElementById('addToCart').addEventListener('click', () => {
 
     // create cart item
     const cartItem = {
-        id: productId, 
+        id: productId,
         color: color,
         quantity: quantity
     };
@@ -88,13 +88,13 @@ document.getElementById('addToCart').addEventListener('click', () => {
             }
         }
 
-        if(!productExists){
-           // 2 Cart does not have the product at all,
-           // 3 if cart is not empty does have product but it a different color then add product to cart
+        if (!productExists) {
+            // 2 Cart does not have the product at all,
+            // 3 if cart is not empty does have product but it a different color then add product to cart
             cart.push(cartItem);
             productExists = true;
         }
-        
+
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -103,4 +103,3 @@ document.getElementById('addToCart').addEventListener('click', () => {
     const updatedCart = JSON.parse(localStorage.getItem('cart'));
     console.log("Updated Cart:", updatedCart);
 });
-
