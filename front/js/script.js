@@ -47,6 +47,5 @@ function displayProducts(products) {
 
     productContainer.appendChild(productElement);
 
-
   });
 }
