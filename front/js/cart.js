@@ -84,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 
-
     // Process and display cart items
     const processCartItems = async () => {
         cartItemsContainer.innerHTML = ''; // Clear existing items
@@ -127,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const color = quantityInput.dataset.color;
             const newQuantity = parseInt(quantityInput.value, 10);
 
-            
+
 
             // Update cart with new quantity
             cart = cart.map(item => {
