@@ -104,4 +104,3 @@ document.getElementById('addToCart').addEventListener('click', () => {
     console.log("Updated Cart:", updatedCart);
 });
 
-
