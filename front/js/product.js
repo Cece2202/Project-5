@@ -43,8 +43,65 @@ const cartItem = { id: 123, color: "purple", quantity: 2 }
 //  2 if cart is not empty does not have product then add product to cart
 //  3 if cart is not empty does have product but it a different color then add product to cart
 //  4 if cart is not empty has the product with the same color then increase quantity
-let cart = [1, 2, 3, 4]
-localStorage.setItem("cart", JSON.stringify(cart))
+let cart = []
 cart = JSON.parse(localStorage.getItem("cart"))
 console.log(cart[0])
+
+document.getElementById('addToCart').addEventListener('click', () => {
+
+    //Done get the product id, select color, and quantity
+    const color = document.getElementById('colors').value;
+    const quantity = parseInt(document.getElementById('quantity').value, 10);
+
+    //using same methd to get the product_id
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const productId = urlParams.get('id');
+
+    if (!color || quantity <= 0 || quantity > 100) {
+        alert('Please select a valid color and quantity.');
+        return;
+    }
+
+    // create cart item
+    const cartItem = {
+        id: productId, 
+        color: color,
+        quantity: quantity
+    };
+
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let productExists = false;
+
+    if (cart.length === 0) {
+        // 1. Cart is empty, add product to cart
+        cart.push(cartItem);
+    } else {
+        for (let item of cart) {
+            if (item.id === cartItem.id) {
+                if (item.color === cartItem.color) {
+                    // 4. Cart has the product with the same color, increase quantity
+                    item.quantity += cartItem.quantity;
+                    productExists = true;
+                    break;
+                }
+            }
+        }
+
+        if(!productExists){
+           // 2 Cart does not have the product at all,
+           // 3 if cart is not empty does have product but it a different color then add product to cart
+            cart.push(cartItem);
+            productExists = true;
+        }
+        
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert('Product added to cart successfully!');
+
+    const updatedCart = JSON.parse(localStorage.getItem('cart'));
+    console.log("Updated Cart:", updatedCart);
+});
+
 
