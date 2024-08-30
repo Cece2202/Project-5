@@ -88,8 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const processCartItems = async () => {
         cartItemsContainer.innerHTML = ''; // Clear existing items
 
-        let totalQuantity = 0;
-        let totalPrice = 0;
+
         console.log(cart)
 
         for (const item of cart) {
@@ -99,14 +98,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const cartItemElement = createCartItemElement(product, item);
                 cartItemsContainer.appendChild(cartItemElement);
 
-                // Update total quantity and total price
-                totalQuantity += item.quantity;
-                totalPrice += item.quantity * product.price;
+                updateTotals(item, product);
             }
         }
-
-        totalQuantityElement.textContent = totalQuantity;
-        totalPriceElement.textContent = totalPrice.toFixed(2);
 
 
         console.log("processCartItems")
@@ -115,15 +109,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update the cart in localStorage and refresh the display
     const updateCart = () => {
         localStorage.setItem('cart', JSON.stringify(cart));
-        processCartItems();
+        // processCartItems();
     };
 
     // Event listener for changes in quantity
     cartItemsContainer.addEventListener('change', (event) => {
         if (event.target.classList.contains('itemQuantity')) {
             const quantityInput = event.target;
-            const id = quantityInput.dataset.id;
-            const color = quantityInput.dataset.color;
+            const article = quantityInput.closest('article')
+            const id = article.dataset.id;
+            const color = article.dataset.color;
             const newQuantity = parseInt(quantityInput.value, 10);
 
 
@@ -137,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             updateCart();
+            //FIXME update totals on page without refreshing (use new function to update total)
         }
 
     });
@@ -157,5 +153,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initial processing of cart items
     processCartItems();
+    function updateTotals(item, product) {
+        let totalQuantity = parseInt(totalQuantityElement.textContent || "0")
+        let totalPrice = parseInt(totalPriceElement.textContent || "0")
+        totalQuantity += item.quantity;
+        totalPrice += item.quantity * product.price;
+        totalQuantityElement.textContent = totalQuantity;
+        totalPriceElement.textContent = totalPrice.toFixed(2);
+        return { totalQuantity, totalPrice };
+    }
 });
 
+
+document.getElementById('order').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent form submission for now
+
+    // Collect user input
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    // Validate input
+    let valid = true;
+
+    if (!validateName(firstName)) {
+        showError('firstNameErrorMsg', 'Please enter a valid first name');
+        valid = false;
+    } else {
+        clearError('firstNameErrorMsg');
+    }
+
+    if (!validateName(lastName)) {
+        showError('lastNameErrorMsg', 'Please enter a valid last name');
+        valid = false;
+    } else {
+        clearError('lastNameErrorMsg');
+    }
+
+    if (!validateAddress(address)) {
+        showError('addressErrorMsg', 'Please enter a valid address');
+        valid = false;
+    } else {
+        clearError('addressErrorMsg');
+    }
+
+    if (!validateCity(city)) {
+        showError('cityErrorMsg', 'Please enter a valid city');
+        valid = false;
+    } else {
+        clearError('cityErrorMsg');
+    }
+
+    if (!validateEmail(email)) {
+        showError('emailErrorMsg', 'Please enter a valid email address');
+        valid = false;
+    } else {
+        clearError('emailErrorMsg');
+    }
+
+    // If all fields are valid, create a contact object and confirm the order
+    if (valid) {
+        const contact = {
+            firstName: firstName,
+            lastName: lastName,
+            address: address,
+            city: city,
+            email: email,
+        };
+
+        console.log('Order confirmed!', contact);
+
+        let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+
+    }
+});
+
+
+// Validation functions
+function validateName(name) {
+    return /^[A-Za-z\s'-]{2,}$/.test(name);
+}
+
+function validateAddress(address) {
+    return /^[A-Za-z0-9\s,.'-]{3,}$/.test(address);
+}
+
+function validateCity(city) {
+    return /^[A-Za-z\s'-]{2,}$/.test(city);
+}
+
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Helper functions to display error messages
+function showError(elementId, message) {
+    document.getElementById(elementId).textContent = message;
+}
+
+function clearError(elementId) {
+    document.getElementById(elementId).textContent = '';
+}
+};
