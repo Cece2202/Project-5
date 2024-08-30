@@ -257,4 +257,30 @@ function showError(elementId, message) {
 function clearError(elementId) {
     document.getElementById(elementId).textContent = '';
 }
-};
+
+
+function confirmOrder(contact, cartItems) {
+
+    console.log('Order ID Confimred', contact);
+    const orderData = {
+        contact: contact,
+        products: cartItems.map(item => item.id)
+    };
+
+    console.log(orderData)
+
+    // POST request to the API
+    fetch('http://localhost:3000/api/products/order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Redirect to the confirmation page with the order ID
+            window.location.href = `confirmation.html?orderId=${data.orderId}`;
+        })
+        .catch(error => console.error('Error:', error));
+}
