@@ -1,3 +1,4 @@
+const productCache = []
 document.addEventListener("DOMContentLoaded", () => {
     // Retrieve the cart from local storage
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -93,17 +94,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
         for (const item of cart) {
             const product = await fetchProductDetails(item.id);
+            if (!productCache.some(p => p._id === product._id)) { productCache.push(product) };
+
+
+
 
             if (product) {
                 const cartItemElement = createCartItemElement(product, item);
                 cartItemsContainer.appendChild(cartItemElement);
 
-                updateTotals(item, product);
+                updateTotals(item.quantity, product.price);
+            }
+        }
+    }
+
+
+    console.log("processCartItems")
+
+    const updateCartTotals = () => {
+        let totalQuantity = 0;
+        let totalPrice = 0;
+
+        for (const item of cart) {
+            const product = productCache.find(p => p._id === item.id);
+            if (product) {
+                totalQuantity += item.quantity;
+                totalPrice += item.quantity * product.price;
             }
         }
 
-
-        console.log("processCartItems")
+        totalQuantityElement.textContent = totalQuantity;
+        totalPriceElement.textContent = totalPrice.toFixed(2);
     };
 
     // Update the cart in localStorage and refresh the display
@@ -120,12 +141,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const id = article.dataset.id;
             const color = article.dataset.color;
             const newQuantity = parseInt(quantityInput.value, 10);
-
+            let changeQuantity;
 
 
             // Update cart with new quantity
             cart = cart.map(item => {
                 if (item.id === id && item.color === color) {
+                    changeQuantity = newQuantity - item.quantity
                     item.quantity = newQuantity;
                 }
                 return item;
@@ -133,6 +155,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             updateCart();
             //FIXME update totals on page without refreshing (use new function to update total)
+            //TODO update totals on page by calling a function updateCartTotals
+            const product = productCache.find(p => p._id === id);
+            updateTotals(changeQuantity, product.price)
+
         }
 
     });
@@ -148,19 +174,21 @@ document.addEventListener("DOMContentLoaded", () => {
             cart = cart.filter(item => !(item.id === id && item.color === color));
 
             updateCart();
+            //TODO update totals on page by calling a function updateCartTotals
         }
     });
 
+    //TODO 
     // Initial processing of cart items
     processCartItems();
-    function updateTotals(item, product) {
+    function updateTotals(quantity, price) {
         let totalQuantity = parseInt(totalQuantityElement.textContent || "0")
         let totalPrice = parseInt(totalPriceElement.textContent || "0")
-        totalQuantity += item.quantity;
-        totalPrice += item.quantity * product.price;
+        totalQuantity += quantity;
+        totalPrice += quantity * price;
         totalQuantityElement.textContent = totalQuantity;
         totalPriceElement.textContent = totalPrice.toFixed(2);
-        return { totalQuantity, totalPrice };
+        // return { totalQuantity, totalPrice };
     }
 });
 
