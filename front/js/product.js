@@ -38,7 +38,6 @@ function displayProduct(product) {
 const cartItem = { id: 123, color: "purple", quantity: 2 }
 let cart = []
 cart = JSON.parse(localStorage.getItem("cart"))
-console.log(cart[0])
 
 document.getElementById('addToCart').addEventListener('click', () => {
 
@@ -63,7 +62,8 @@ document.getElementById('addToCart').addEventListener('click', () => {
         quantity: quantity
     };
 
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || []; 
+    console.log(cart)
     let productExists = false;
 
     if (cart.length === 0) {
