@@ -308,8 +308,11 @@ function confirmOrder(contact, cartItems) {
     })
         .then(response => response.json())
         .then(data => {
-            // Redirect to the confirmation page with the order ID
-            window.location.href = `confirmation.html?orderId=${data.orderId}`;
-        })
-        .catch(error => console.error('Error:', error));
+            if (data && data.orderId) {
+                // Clear the cart after successful order
+                localStorage.removeItem('cart');
+                // Redirect to the confirmation page with the order ID
+                window.location.href = `confirmation.html?orderId=${data.orderId}`;
+            }
+        .catch (error => console.error('Error:', error));
 }
