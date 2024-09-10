@@ -254,7 +254,8 @@ document.getElementById('order').addEventListener('click', function (event) {
         console.log('Order confirmed!', contact);
 
         let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-
+        //TODO call order function
+        confirmOrder(contact, cartItems)
 
     }
 });
