@@ -1,9 +1,3 @@
-// console.log("data")
-// fetch('http://localhost:3000/api/products')
-//   .then(response => response.json())
-//   .then(data => console.log(data))
-
-// document.getElementsByClassName()
 fetch('http://localhost:3000/api/products')
   .then(response => response.json())
   .then(products => displayProducts(products))
@@ -39,11 +33,6 @@ function displayProducts(products) {
     productDescription.classList.add('productDescription');
     productDescription.textContent = product.description;
     productArticle.appendChild(productDescription);
-
-    // const productPrice = document.createElement('p');
-    // productPrice.classList.add('productPrice');
-    // productPrice.textContent = `$${product.price}`;
-    // productElement.appendChild(productPrice);
 
     productContainer.appendChild(productElement);
 

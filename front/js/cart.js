@@ -1,6 +1,5 @@
 const productCache = []
 document.addEventListener("DOMContentLoaded", () => {
-    // Retrieve the cart from local storage
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
     const cartItemsContainer = document.getElementById('cart__items');
@@ -10,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let totalQuantity = 0;
     let totalPrice = 0;
 
-    // Fetch product details and display them
     const fetchProductDetails = (productId) => {
         return fetch(`http://localhost:3000/api/products/${productId}`)
             .then(response => response.json())
@@ -19,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     };
 
-    // Create and insert elements for each product in the cart
     const createCartItemElement = (product, item) => {
         const article = document.createElement('article');
         article.classList.add('cart__item');
@@ -85,9 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 
-    // Process and display cart items
     const processCartItems = async () => {
-        cartItemsContainer.innerHTML = ''; // Clear existing items
+        cartItemsContainer.innerHTML = ''; 
 
 
         console.log(cart)
@@ -127,13 +123,10 @@ document.addEventListener("DOMContentLoaded", () => {
         totalPriceElement.textContent = totalPrice.toFixed(2);
     };
 
-    // Update the cart in localStorage and refresh the display
     const updateCart = () => {
         localStorage.setItem('cart', JSON.stringify(cart));
-        // processCartItems();
     };
 
-    // Event listener for changes in quantity
     cartItemsContainer.addEventListener('change', (event) => {
         if (event.target.classList.contains('itemQuantity')) {
             const quantityInput = event.target;
@@ -144,7 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
             let changeQuantity;
 
 
-            // Update cart with new quantity
             cart = cart.map(item => {
                 if (item.id === id && item.color === color) {
                     changeQuantity = newQuantity - item.quantity
@@ -154,8 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             updateCart();
-            //FIXME update totals on page without refreshing (use new function to update total)
-            //TODO update totals on page by calling a function updateCartTotals
             const product = productCache.find(p => p._id === id);
             updateTotals(changeQuantity, product.price)
 
@@ -163,23 +153,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    // Event listener for deleting items
     cartItemsContainer.addEventListener('click', (event) => {
         if (event.target.classList.contains('deleteItem')) {
             const article = event.target.closest('.cart__item');
             const id = article.dataset.id;
             const color = article.dataset.color;
+            let changeQuantity;
 
-            // Remove item from cart
-            cart = cart.filter(item => !(item.id === id && item.color === color));
+            cart = cart.filter(item => {
+                const result = item.id === id && item.color === color
+                if (result) { changeQuantity = item.quantity }
+                return !result
+            });
+            article.remove();
 
             updateCart();
-            //TODO update totals on page by calling a function updateCartTotals
+            const product = productCache.find(p => p._id === id);
+
+            updateTotals(-changeQuantity, product.price);
         }
     });
 
-    //TODO 
-    // Initial processing of cart items
     processCartItems();
     function updateTotals(quantity, price) {
         let totalQuantity = parseInt(totalQuantityElement.textContent || "0")
@@ -188,22 +182,19 @@ document.addEventListener("DOMContentLoaded", () => {
         totalPrice += quantity * price;
         totalQuantityElement.textContent = totalQuantity;
         totalPriceElement.textContent = totalPrice.toFixed(2);
-        // return { totalQuantity, totalPrice };
     }
 });
 
 
 document.getElementById('order').addEventListener('click', function (event) {
-    event.preventDefault(); // Prevent form submission for now
+    event.preventDefault(); 
 
-    // Collect user input
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
     const address = document.getElementById('address').value.trim();
     const city = document.getElementById('city').value.trim();
     const email = document.getElementById('email').value.trim();
 
-    // Validate input
     let valid = true;
 
     if (!validateName(firstName)) {
@@ -241,7 +232,6 @@ document.getElementById('order').addEventListener('click', function (event) {
         clearError('emailErrorMsg');
     }
 
-    // If all fields are valid, create a contact object and confirm the order
     if (valid) {
         const contact = {
             firstName: firstName,
@@ -254,14 +244,12 @@ document.getElementById('order').addEventListener('click', function (event) {
         console.log('Order confirmed!', contact);
 
         let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-        //TODO call order function
         confirmOrder(contact, cartItems)
 
     }
 });
 
 
-// Validation functions
 function validateName(name) {
     return /^[A-Za-z\s'-]{2,}$/.test(name);
 }
@@ -278,7 +266,6 @@ function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Helper functions to display error messages
 function showError(elementId, message) {
     document.getElementById(elementId).textContent = message;
 }
@@ -298,7 +285,6 @@ function confirmOrder(contact, cartItems) {
 
     console.log(orderData)
 
-    // POST request to the API
     fetch('http://localhost:3000/api/products/order', {
         method: 'POST',
         headers: {
@@ -308,11 +294,8 @@ function confirmOrder(contact, cartItems) {
     })
         .then(response => response.json())
         .then(data => {
-            if (data && data.orderId) {
-                // Clear the cart after successful order
-                localStorage.removeItem('cart');
-                // Redirect to the confirmation page with the order ID
-                window.location.href = `confirmation.html?orderId=${data.orderId}`;
-            }
-        .catch (error => console.error('Error:', error));
+            localStorage.clear()
+            window.location.href = `confirmation.html?orderId=${data.orderId}`;
+        })
+        .catch(error => console.error('Error:', error));
 }
