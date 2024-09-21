@@ -189,6 +189,13 @@ document.addEventListener("DOMContentLoaded", () => {
 document.getElementById('order').addEventListener('click', function (event) {
     event.preventDefault(); 
 
+    let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+    if (cartItems.length === 0) {
+        alert('Your cart is empty. Please add items before placing an order.');
+        return; 
+    }
+
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
     const address = document.getElementById('address').value.trim();
@@ -247,6 +254,8 @@ document.getElementById('order').addEventListener('click', function (event) {
         confirmOrder(contact, cartItems)
 
     }
+
+
 });
 
 
